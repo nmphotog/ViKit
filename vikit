@@ -1,0 +1,16 @@
+#!/bin/bash
+# Command-line launcher:  vikit [file]
+# Opens the file in a new ViKit window (relative paths resolve against your shell's cwd).
+# Uses the installed app (./build.sh --install) if there is one, else the local build.
+APP="${VIKIT_APP:-}"
+for c in "$HOME/Applications/ViKit.app" "/Applications/ViKit.app" \
+         "$(cd "$(dirname "$(readlink -f "$0")")" && pwd)/build/ViKit.app"; do
+  [[ -z "$APP" && -d "$c" ]] && APP="$c"
+done
+[[ -n "$APP" ]] || { echo "vikit: ViKit.app not found; run ./build.sh --install" >&2; exit 1; }
+if [[ $# -gt 0 ]]; then
+  f="$1"; [[ "$f" = /* ]] || f="$PWD/$f"
+  exec open -n -a "$APP" --args --cwd "$PWD" "$f"
+else
+  exec open -n -a "$APP" --args --cwd "$PWD"
+fi
